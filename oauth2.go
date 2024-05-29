@@ -2,7 +2,7 @@
  * @Author       : Symphony zhangleping@cezhiqiu.com
  * @Date         : 2024-05-28 02:12:57
  * @LastEditors  : Symphony zhangleping@cezhiqiu.com
- * @LastEditTime : 2024-05-28 03:03:56
+ * @LastEditTime : 2024-05-29 14:43:41
  * @FilePath     : /v2/go-common-v2-dh-oauth2-server/oauth2.go
  * @Description  :
  *
@@ -95,4 +95,17 @@ func GenerateRefreshToken() (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(bytes), nil
+}
+
+func RefreshToken(rt string) (string, error) {
+	userId := dhredis.Get(fmt.Sprintf("oauth2:refresh_token:%s", rt))
+	if len(userId) == 0 {
+		return "", fmt.Errorf("refresh_token 没有匹配的userId")
+	}
+	at, err := GenerateAccessToken()
+	if err != nil {
+		return "", err
+	}
+	dhredis.Set(fmt.Sprintf("oauth2:access_token:%s", at), userId, oauth2Config.accessTokenExpire)
+	return at, nil
 }
