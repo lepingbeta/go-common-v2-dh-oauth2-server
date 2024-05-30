@@ -2,7 +2,7 @@
  * @Author       : Symphony zhangleping@cezhiqiu.com
  * @Date         : 2024-05-28 02:12:57
  * @LastEditors  : Symphony zhangleping@cezhiqiu.com
- * @LastEditTime : 2024-05-29 14:43:41
+ * @LastEditTime : 2024-05-29 16:15:50
  * @FilePath     : /v2/go-common-v2-dh-oauth2-server/oauth2.go
  * @Description  :
  *
@@ -108,4 +108,13 @@ func RefreshToken(rt string) (string, error) {
 	}
 	dhredis.Set(fmt.Sprintf("oauth2:access_token:%s", at), userId, oauth2Config.accessTokenExpire)
 	return at, nil
+}
+
+func GetUserId(at string) (string, error) {
+	userId := dhredis.Get(fmt.Sprintf("oauth2:access_token:%s", at))
+	if len(userId) == 0 {
+		return "", fmt.Errorf("access token 没有匹配的userId")
+	}
+
+	return userId, nil
 }
