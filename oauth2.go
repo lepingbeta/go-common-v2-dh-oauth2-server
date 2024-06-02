@@ -2,8 +2,8 @@
  * @Author       : Symphony zhangleping@cezhiqiu.com
  * @Date         : 2024-05-28 02:12:57
  * @LastEditors  : Symphony zhangleping@cezhiqiu.com
- * @LastEditTime : 2024-05-29 16:15:50
- * @FilePath     : /v2/go-common-v2-dh-oauth2-server/oauth2.go
+ * @LastEditTime : 2024-06-02 13:22:47
+ * @FilePath     : /inner-user-center-api/data/mycode/dahe/go-common/v2/go-common-v2-dh-oauth2-server/oauth2.go
  * @Description  :
  *
  * Copyright (c) 2024 by 大合前研, All Rights Reserved.
@@ -97,17 +97,23 @@ func GenerateRefreshToken() (string, error) {
 	return base64.URLEncoding.EncodeToString(bytes), nil
 }
 
-func RefreshToken(rt string) (string, error) {
+func RefreshToken(rt string) (string, string, error) {
 	userId := dhredis.Get(fmt.Sprintf("oauth2:refresh_token:%s", rt))
 	if len(userId) == 0 {
-		return "", fmt.Errorf("refresh_token 没有匹配的userId")
+		return "", "", fmt.Errorf("refresh_token 没有匹配的userId")
 	}
 	at, err := GenerateAccessToken()
 	if err != nil {
-		return "", err
+		return "", "", err
+	}
+
+	rt, err = GenerateRefreshToken()
+	if err != nil {
+		return "", "", err
 	}
 	dhredis.Set(fmt.Sprintf("oauth2:access_token:%s", at), userId, oauth2Config.accessTokenExpire)
-	return at, nil
+	dhredis.Set(fmt.Sprintf("oauth2:refresh_token:%s", rt), userId, oauth2Config.refreshTokenExpire)
+	return at, rt, nil
 }
 
 func GetUserId(at string) (string, error) {

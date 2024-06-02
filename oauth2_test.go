@@ -2,7 +2,7 @@
  * @Author       : Symphony zhangleping@cezhiqiu.com
  * @Date         : 2024-05-28 02:12:57
  * @LastEditors  : Symphony zhangleping@cezhiqiu.com
- * @LastEditTime : 2024-05-29 14:44:47
+ * @LastEditTime : 2024-06-02 13:27:01
  * @FilePath     : /v2/go-common-v2-dh-oauth2-server/oauth2_test.go
  * @Description  :
  *
@@ -70,6 +70,7 @@ func TestRefreshToken(t *testing.T) {
 	SetTokenExpires(180, 180, 180)
 	code, _ := MakeAuthCode(userId)
 	_, rt, _ := MakeTwoToken(code)
-	at, _ := RefreshToken(rt)
+	at, rt, _ := RefreshToken(rt)
 	dhlog.DebugAny(at)
+	dhlog.DebugAny(rt)
 }
