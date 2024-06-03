@@ -2,8 +2,8 @@
  * @Author       : Symphony zhangleping@cezhiqiu.com
  * @Date         : 2024-05-28 02:12:57
  * @LastEditors  : Symphony zhangleping@cezhiqiu.com
- * @LastEditTime : 2024-06-02 13:22:47
- * @FilePath     : /inner-user-center-api/data/mycode/dahe/go-common/v2/go-common-v2-dh-oauth2-server/oauth2.go
+ * @LastEditTime : 2024-06-02 14:50:12
+ * @FilePath     : /v2/go-common-v2-dh-oauth2-server/oauth2.go
  * @Description  :
  *
  * Copyright (c) 2024 by 大合前研, All Rights Reserved.
@@ -14,6 +14,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	dhredis "github.com/lepingbeta/go-common-v2-dh-redis"
 )
@@ -36,12 +37,13 @@ func SetTokenExpires(codeExpire, accessTokenExpire, refreshTokenExpire int) {
 
 // GenerateAuthCode 生成一个随机的授权码
 func GenerateAuthCode() (string, error) {
-	const codeLength = 16
+	const codeLength = 18
 	bytes := make([]byte, codeLength)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(bytes), nil
+	encoded := base64.URLEncoding.EncodeToString(bytes)
+	return strings.TrimRight(encoded, "="), nil
 }
 
 func MakeAuthCode(userId string) (string, error) {
@@ -79,22 +81,22 @@ func MakeTwoToken(code string) (string, string, error) {
 
 // GenerateAccessToken 生成一个随机的令牌
 func GenerateAccessToken() (string, error) {
-	const tokenLength = 32
+	const tokenLength = 33
 	bytes := make([]byte, tokenLength)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(bytes), nil
+	return strings.TrimRight(base64.URLEncoding.EncodeToString(bytes), "="), nil
 }
 
 // GenerateRefreshToken 生成一个随机的令牌
 func GenerateRefreshToken() (string, error) {
-	const tokenLength = 32
+	const tokenLength = 33
 	bytes := make([]byte, tokenLength)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(bytes), nil
+	return strings.TrimRight(base64.URLEncoding.EncodeToString(bytes), "="), nil
 }
 
 func RefreshToken(rt string) (string, string, error) {
